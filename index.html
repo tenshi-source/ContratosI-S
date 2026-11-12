@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#090909">
   <title>Agenda | I&amp;S Personalizados</title>
   <style>
@@ -28,10 +28,10 @@
     }
 
     * { box-sizing: border-box; }
-    body { margin: 0; min-width: 320px; background: radial-gradient(ellipse at 50% 0, #211b0d 0, var(--canvas) 48%) fixed; color: var(--ink); }
+    body { margin: 0; min-width: 320px; background: radial-gradient(ellipse at 50% 0, #211b0d 0, var(--canvas) 48%) fixed; color: var(--ink); -webkit-text-size-adjust: 100%; }
     button, input, select, textarea { font: inherit; }
     button { cursor: pointer; }
-    .app { max-width: 1180px; margin: 0 auto; padding: 38px 28px 60px; }
+    .app { max-width: 1180px; margin: 0 auto; padding: calc(38px + env(safe-area-inset-top)) 28px calc(60px + env(safe-area-inset-bottom)); }
     .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 34px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
     .brand { display: flex; align-items: center; gap: 13px; }
     .brand-logo { display: block; width: 145px; height: auto; }
@@ -92,7 +92,7 @@
     .legend-item { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; }
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
     .footer-note { margin: 18px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
-    dialog { width: min(570px, calc(100% - 28px)); max-height: min(90vh, 850px); padding: 0; overflow: auto; border: 1px solid #66522c; border-radius: 17px; background: #151411; color: var(--ink); box-shadow: 0 20px 70px #000b; }
+    dialog { width: min(570px, calc(100% - 28px)); max-height: min(90vh, 850px); max-height: min(90dvh, 850px); padding: 0; overflow: auto; border: 1px solid #66522c; border-radius: 17px; background: #151411; color: var(--ink); box-shadow: 0 20px 70px #000b; }
     dialog::backdrop { background: #000b; backdrop-filter: blur(3px); }
     .dialog-head { display: flex; justify-content: space-between; align-items: center; padding: 20px 23px; border-bottom: 1px solid var(--line); }
     .dialog-head h2 { margin: 0; font-size: 18px; }
@@ -119,35 +119,51 @@
     button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 2px; }
     [hidden] { display: none !important; }
     @media (max-width: 760px) {
-      .app { padding: 25px 17px 40px; }
-      .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      .stat { min-height: 78px; padding: 12px; }
-      .stat-icon { width: 34px; height: 34px; }
-      .stat-number { font-size: 20px; }
-      .event { grid-template-columns: 50px minmax(0, 1fr); gap: 12px; }
-      .date-tile { width: 49px; height: 55px; }
-      .event-actions { grid-column: 2; justify-content: flex-start; }
-      .intro { align-items: flex-start; }
+      .app { padding: calc(22px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom)); }
+      .topbar { flex-wrap: wrap; gap: 14px 12px; margin-bottom: 24px; padding-bottom: 16px; }
+      .brand { flex: 1 1 100%; gap: 10px; min-width: 0; }
+      .brand-logo { width: clamp(100px, 30vw, 130px); }
+      .brand-caption { max-width: 210px; line-height: 1.4; }
       .today-label { display: none; }
-    }
-    @media (max-width: 480px) {
-      .topbar { margin-bottom: 26px; }
-      .brand { gap: 10px; }
-      .brand-logo { width: 112px; }
-      .brand-name { font-size: 12px; }
-      .brand-caption { max-width: 150px; font-size: 11px; }
+      .account-tools { width: 100%; justify-content: flex-end; }
       .account-email { display: none; }
-      .connection-panel { margin: 36px auto; padding: 23px; }
-      .intro { flex-direction: column; }
-      .intro .primary-button { width: 100%; }
-      .agenda-head { align-items: flex-start; flex-direction: column; padding: 16px; }
-      .agenda-tools { width: 100%; }
-      .agenda-tools .control { flex: 1; }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .stat { min-width: 0; min-height: 78px; gap: 9px; padding: 12px; }
+      .stat-icon { width: 34px; height: 34px; flex: 0 0 34px; }
+      .stat-number { font-size: 20px; }
+      .intro { align-items: flex-start; }
+      .agenda-head { align-items: stretch; flex-direction: column; padding: 16px; }
+      .agenda-tools { display: grid; grid-template-columns: minmax(0, 1fr); width: 100%; gap: 8px; }
+      .control, .field input, .field select, .field textarea, .add-option input { min-height: 44px; font-size: 16px; }
       .event-list { padding: 4px 15px; }
-      .status-select { width: 140px; }
+      .event { grid-template-columns: 50px minmax(0, 1fr); align-items: start; gap: 10px; padding: 16px 0; }
+      .date-tile { width: 48px; height: 54px; }
+      .event-title { font-size: 14px; line-height: 1.35; }
+      .event-actions { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) 44px 44px; gap: 8px; }
+      .status-select { width: 100%; min-width: 0; }
+      .icon-button { width: 44px; height: 44px; }
+      .connection-panel { margin: 36px auto; padding: 24px; }
       .two-columns { grid-template-columns: 1fr; gap: 16px; }
-      .check-grid { grid-template-columns: 1fr 1fr; }
+      .check-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+      .check-item { min-height: 44px; padding: 8px; }
+      .close-button { width: 44px; height: 44px; }
+      .add-option { align-items: stretch; }
+      .add-option input { min-width: 0; }
+      .small-button, .primary-button, .secondary-button { min-height: 44px; }
+      .form-actions { display: grid; grid-template-columns: 1fr 1fr; }
+      .form-actions > button { width: 100%; }
       .legend { padding: 14px 16px; }
+      .toast { right: calc(16px + env(safe-area-inset-right)); bottom: calc(12px + env(safe-area-inset-bottom)); left: calc(16px + env(safe-area-inset-left)); text-align: center; }
+    }
+    @media (max-width: 380px) {
+      .app { padding-right: 12px; padding-left: 12px; }
+      .brand-logo { width: 96px; }
+      .brand-caption { max-width: 170px; }
+      .connection-panel { padding: 20px; }
+      .event-list { padding-right: 10px; padding-left: 10px; }
+      .check-grid { grid-template-columns: 1fr; }
+      .dialog-head { padding: 16px; }
+      .event-form { gap: 14px; padding: 16px; }
     }
   </style>
 </head>
