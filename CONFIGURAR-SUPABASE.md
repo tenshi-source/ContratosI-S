@@ -24,6 +24,6 @@ Use somente a chave pública `anon`/`publishable` no navegador. **Nunca** coloqu
 
 ## 2. Usar a agenda
 
-Abra a URL do GitHub Pages, entre com a conta criada para o funcionário e cadastre os eventos. As alterações são gravadas no Supabase e os outros usuários recebem os dados ao atualizar a página, clicar em **Atualizar** ou aguardar a sincronização automática.
+Abra a URL do GitHub Pages, entre com a conta criada para o funcionário e cadastre os eventos. As listas de funcionários e produtos começam vazias; adicione os itens reais da equipe pelo formulário de evento. As alterações são gravadas no Supabase e os outros usuários recebem os dados ao atualizar a página, clicar em **Atualizar** ou aguardar a sincronização automática.
 
 O arquivo não transfere automaticamente os eventos que tenham sido salvos anteriormente no armazenamento local de um navegador. Se já houver dados importantes nessa agenda antiga, exporte/registre-os antes de migrar.

@@ -108,6 +108,7 @@
     .check-item { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; color: #e4d7b6; font-size: 12px; cursor: pointer; }
     .check-item:has(input:checked) { border-color: var(--gold); background: var(--gold-soft); }
     .check-item input { width: 14px; height: 14px; margin: 0; accent-color: var(--gold); }
+    .option-empty { grid-column: 1 / -1; margin: 0; padding: 8px 2px; color: var(--muted); font-size: 12px; }
     .add-option { display: flex; gap: 7px; margin-top: 8px; }
     .add-option input { min-width: 0; flex: 1; min-height: 36px; padding: 7px 10px; border: 1px solid #494438; border-radius: 8px; background: #0e0e0c; color: var(--ink); font-size: 12px; }
     .small-button { padding: 0 11px; border: 1px solid #62512e; border-radius: 8px; background: var(--gold-soft); color: var(--gold-light); font-size: 12px; font-weight: 600; }
@@ -293,8 +294,6 @@
   <script>
     (function () {
       "use strict";
-      const DEFAULT_EMPLOYEES = ["Ana", "Bruno", "Camila", "Diego"];
-      const DEFAULT_PRODUCTS = ["Convites", "Topo de bolo", "Lembrancinhas", "Papelaria"];
       const config = window.AGENDA_SUPABASE_CONFIG || {};
       const configured = typeof config.url === "string" && /^https:\/\/.+/.test(config.url) &&
         typeof config.anonKey === "string" && config.anonKey.length > 20 &&
@@ -315,8 +314,8 @@
       let toastTimer;
       let state = {
         events: [],
-        employees: DEFAULT_EMPLOYEES.slice(),
-        products: DEFAULT_PRODUCTS.slice()
+        employees: [],
+        products: []
       };
 
       function showError(error, fallback) {
@@ -344,8 +343,8 @@
         });
         const employees = results[1].data.filter(function (row) { return row.kind === "employee"; }).map(function (row) { return row.name; });
         const products = results[1].data.filter(function (row) { return row.kind === "product"; }).map(function (row) { return row.name; });
-        state.employees = employees.length ? employees : DEFAULT_EMPLOYEES.slice();
-        state.products = products.length ? products : DEFAULT_PRODUCTS.slice();
+        state.employees = employees;
+        state.products = products;
         render();
       }
 
@@ -426,6 +425,10 @@
       }
 
       function renderOptions(containerSelector, values, selected) {
+        if (!values.length) {
+          $(containerSelector).innerHTML = '<p class="option-empty">Nenhum item cadastrado ainda.</p>';
+          return;
+        }
         $(containerSelector).innerHTML = values.map(function (value) {
           const checked = selected.includes(value) ? " checked" : "";
           return '<label class="check-item"><input type="checkbox" value="' + escapeHtml(value) + '"' + checked + '><span>' + escapeHtml(value) + "</span></label>";
