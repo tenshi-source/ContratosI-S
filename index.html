@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7f4">
+  <title>Agenda | I&amp;S Personalizados</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1c2924;
+      --muted: #78827c;
+      --line: #e7ebe7;
+      --paper: #fff;
+      --canvas: #f5f7f4;
+      --green: #23845b;
+      --green-soft: #e5f4eb;
+      --yellow: #a87310;
+      --yellow-soft: #fff3d4;
+      --red: #c44c4c;
+      --red-soft: #fde9e8;
+      --blue: #4278c4;
+      --blue-soft: #e8f0fc;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; background: var(--canvas); color: var(--ink); }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .app { max-width: 1180px; margin: 0 auto; padding: 38px 28px 60px; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 34px; }
+    .brand { display: flex; align-items: center; gap: 13px; }
+    .brand-mark { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 15px; color: white; background: #254c3c; font-weight: 750; letter-spacing: -1px; }
+    .brand-name { margin: 0; font-size: 15px; font-weight: 700; }
+    .brand-caption { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .today-label { color: var(--muted); font-size: 13px; }
+    .account-tools { display: flex; align-items: center; gap: 10px; }
+    .account-email { color: var(--muted); font-size: 12px; }
+    .connection-panel { max-width: 470px; margin: 55px auto; padding: 27px; border: 1px solid var(--line); border-radius: 16px; background: white; }
+    .connection-panel h1 { font-size: 24px; }
+    .connection-panel > p { margin: 9px 0 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .connection-panel .field { margin-bottom: 14px; }
+    .connection-panel .primary-button { width: 100%; }
+    .connection-error { min-height: 18px; margin: 10px 0 0; color: var(--red); font-size: 12px; }
+    .intro { display: flex; justify-content: space-between; align-items: end; gap: 20px; margin-bottom: 25px; }
+    .eyebrow { margin: 0 0 8px; color: var(--green); font-size: 11px; font-weight: 750; letter-spacing: 1.6px; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 4vw, 35px); letter-spacing: -1.2px; }
+    .subtitle { margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+    .primary-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 43px; padding: 0 16px; border: 0; border-radius: 11px; background: #254c3c; color: white; font-weight: 650; box-shadow: 0 3px 8px #254c3c1f; }
+    .primary-button:hover { background: #1c3e30; }
+    .primary-button span { font-size: 19px; line-height: 1; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat { display: flex; align-items: center; gap: 13px; min-height: 91px; padding: 17px 19px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
+    .stat-icon { display: grid; place-items: center; width: 39px; height: 39px; border-radius: 12px; background: #f1f5f2; font-size: 18px; }
+    .stat-label { margin: 0 0 3px; color: var(--muted); font-size: 12px; }
+    .stat-number { margin: 0; font-size: 23px; font-weight: 720; letter-spacing: -.5px; }
+    .agenda { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); }
+    .agenda-head { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 19px 22px; border-bottom: 1px solid var(--line); }
+    .agenda-title { margin: 0; font-size: 16px; font-weight: 700; }
+    .agenda-tools { display: flex; gap: 10px; }
+    .control { min-height: 37px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--ink); font-size: 12px; }
+    .event-list { padding: 5px 22px; }
+    .event { display: grid; grid-template-columns: 61px minmax(0, 1fr) auto; align-items: center; gap: 17px; padding: 20px 0; border-bottom: 1px solid #edf0ed; }
+    .event:last-child { border-bottom: 0; }
+    .date-tile { display: grid; place-items: center; align-content: center; width: 58px; height: 62px; border-radius: 12px; background: #f3f6f3; }
+    .date-day { font-size: 22px; font-weight: 750; line-height: 1.1; }
+    .date-month { margin-top: 4px; color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+    .event-main { min-width: 0; }
+    .event-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+    .event-title { margin: 0; font-size: 15px; font-weight: 700; }
+    .status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 20px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .status::before { width: 6px; height: 6px; border-radius: 50%; background: currentColor; content: ""; }
+    .status-completo { color: var(--green); background: var(--green-soft); }
+    .status-andamento { color: var(--yellow); background: var(--yellow-soft); }
+    .status-incompleto { color: var(--red); background: var(--red-soft); }
+    .status-fazer { color: var(--blue); background: var(--blue-soft); }
+    .event-meta { display: flex; flex-wrap: wrap; gap: 7px 16px; margin-top: 8px; color: var(--muted); font-size: 12px; }
+    .event-meta span { overflow-wrap: anywhere; }
+    .event-actions { display: flex; align-items: center; gap: 7px; }
+    .status-select { width: 145px; }
+    .icon-button { display: grid; place-items: center; width: 35px; height: 35px; border: 1px solid var(--line); border-radius: 9px; background: white; color: #64716a; font-size: 15px; }
+    .icon-button:hover { border-color: #b7c3bb; color: var(--ink); }
+    .empty { padding: 55px 20px; text-align: center; }
+    .empty-icon { font-size: 29px; }
+    .empty h3 { margin: 10px 0 5px; font-size: 15px; }
+    .empty p { margin: 0; color: var(--muted); font-size: 13px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 10px 17px; padding: 16px 22px; border-top: 1px solid var(--line); background: #fcfdfc; }
+    .legend-item { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .footer-note { margin: 18px 0 0; color: var(--muted); font-size: 11px; text-align: center; }
+    dialog { width: min(570px, calc(100% - 28px)); max-height: min(90vh, 850px); padding: 0; overflow: auto; border: 0; border-radius: 17px; background: white; box-shadow: 0 20px 70px #14271d30; }
+    dialog::backdrop { background: #14271d70; backdrop-filter: blur(2px); }
+    .dialog-head { display: flex; justify-content: space-between; align-items: center; padding: 20px 23px; border-bottom: 1px solid var(--line); }
+    .dialog-head h2 { margin: 0; font-size: 18px; }
+    .close-button { border: 0; background: none; color: var(--muted); font-size: 23px; }
+    .event-form { display: grid; gap: 17px; padding: 21px 23px 23px; }
+    .field { display: grid; gap: 7px; }
+    .field label, .field-label { color: #46534c; font-size: 12px; font-weight: 650; }
+    .field input, .field select, .field textarea { width: 100%; min-height: 41px; padding: 9px 11px; border: 1px solid #dfe5e0; border-radius: 9px; outline: none; background: white; color: var(--ink); font-size: 13px; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: #63947a; box-shadow: 0 0 0 3px #63947a20; }
+    .field textarea { min-height: 75px; resize: vertical; }
+    .two-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
+    .check-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .check-item { display: flex; align-items: center; gap: 8px; min-height: 38px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; color: #46534c; font-size: 12px; cursor: pointer; }
+    .check-item:has(input:checked) { border-color: #a8c5b3; background: #f2f8f4; }
+    .check-item input { width: 14px; height: 14px; margin: 0; accent-color: #317454; }
+    .add-option { display: flex; gap: 7px; margin-top: 8px; }
+    .add-option input { min-width: 0; flex: 1; min-height: 36px; padding: 7px 10px; border: 1px solid #dfe5e0; border-radius: 8px; font-size: 12px; }
+    .small-button { padding: 0 11px; border: 1px solid var(--line); border-radius: 8px; background: #f8faf8; color: #46534c; font-size: 12px; font-weight: 600; }
+    .form-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 3px; }
+    .secondary-button { min-height: 41px; padding: 0 14px; border: 1px solid var(--line); border-radius: 9px; background: white; color: #46534c; font-size: 13px; font-weight: 600; }
+    .form-actions .primary-button { min-height: 41px; font-size: 13px; }
+    .toast { position: fixed; right: 22px; bottom: 20px; z-index: 3; padding: 12px 16px; border-radius: 10px; background: #254c3c; color: white; font-size: 13px; box-shadow: 0 5px 20px #14271d24; }
+    [hidden] { display: none !important; }
+    @media (max-width: 760px) {
+      .app { padding: 25px 17px 40px; }
+      .stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .stat { min-height: 78px; padding: 12px; }
+      .stat-icon { width: 34px; height: 34px; }
+      .stat-number { font-size: 20px; }
+      .event { grid-template-columns: 50px minmax(0, 1fr); gap: 12px; }
+      .date-tile { width: 49px; height: 55px; }
+      .event-actions { grid-column: 2; justify-content: flex-start; }
+      .intro { align-items: flex-start; }
+      .today-label { display: none; }
+    }
+    @media (max-width: 480px) {
+      .topbar { margin-bottom: 26px; }
+      .account-email { display: none; }
+      .intro { flex-direction: column; }
+      .intro .primary-button { width: 100%; }
+      .agenda-head { align-items: flex-start; flex-direction: column; padding: 16px; }
+      .agenda-tools { width: 100%; }
+      .agenda-tools .control { flex: 1; }
+      .event-list { padding: 4px 15px; }
+      .status-select { width: 140px; }
+      .two-columns { grid-template-columns: 1fr; gap: 16px; }
+      .check-grid { grid-template-columns: 1fr 1fr; }
+      .legend { padding: 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">I&amp;S</div>
+        <div>
+          <p class="brand-name">I&amp;S Personalizados</p>
+          <p class="brand-caption">Organização da equipe e dos eventos</p>
+        </div>
+      </div>
+      <div class="today-label" id="todayLabel"></div>
+      <div class="account-tools" id="accountTools" hidden>
+        <span class="account-email" id="accountEmail"></span>
+        <button class="control" id="refreshButton" type="button" title="Buscar alterações">↻ Atualizar</button>
+        <button class="control" id="signOutButton" type="button">Sair</button>
+      </div>
+    </header>
+
+    <section class="connection-panel" id="connectionPanel" hidden>
+      <div id="setupMessage" hidden>
+        <p class="eyebrow">Configuração necessária</p>
+        <h1>Conecte sua agenda</h1>
+        <p>Adicione a URL e a chave pública do projeto Supabase em <strong>supabase-config.js</strong>, execute o arquivo <strong>supabase-setup.sql</strong> no SQL Editor do Supabase e publique novamente.</p>
+      </div>
+      <form id="loginForm">
+        <p class="eyebrow">I&amp;S Personalizados</p>
+        <h1>Acesse a agenda</h1>
+        <p>Entre com o e-mail e a senha da sua conta autorizada pela empresa.</p>
+        <div class="field">
+          <label for="loginEmail">E-mail</label>
+          <input id="loginEmail" type="email" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Senha</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="primary-button" type="submit">Entrar</button>
+        <p class="connection-error" id="authError" role="alert"></p>
+      </form>
+    </section>
+
+    <div id="agendaContent" hidden>
+    <section class="intro">
+      <div>
+        <p class="eyebrow">Painel de planejamento</p>
+        <h1>Agenda de eventos</h1>
+        <p class="subtitle">Acompanhe datas, equipe, produtos e andamento em um só lugar.</p>
+      </div>
+      <button class="primary-button" id="newEventButton" type="button"><span aria-hidden="true">+</span> Novo evento</button>
+    </section>
+
+    <section class="stats" aria-label="Resumo da agenda">
+      <article class="stat"><div class="stat-icon" aria-hidden="true">▦</div><div><p class="stat-label">Total de eventos</p><p class="stat-number" id="totalCount">0</p></div></article>
+      <article class="stat"><div class="stat-icon" aria-hidden="true">◷</div><div><p class="stat-label">A fazer</p><p class="stat-number" id="todoCount">0</p></div></article>
+      <article class="stat"><div class="stat-icon" aria-hidden="true">↗</div><div><p class="stat-label">Em andamento</p><p class="stat-number" id="progressCount">0</p></div></article>
+      <article class="stat"><div class="stat-icon" aria-hidden="true">✓</div><div><p class="stat-label">Completos</p><p class="stat-number" id="completeCount">0</p></div></article>
+    </section>
+
+    <section class="agenda" aria-label="Lista de eventos">
+      <div class="agenda-head">
+        <h2 class="agenda-title">Próximos eventos</h2>
+        <div class="agenda-tools">
+          <input class="control" id="searchInput" type="search" placeholder="Buscar evento..." aria-label="Buscar evento">
+          <select class="control" id="statusFilter" aria-label="Filtrar por status">
+            <option value="todos">Todos os status</option>
+            <option value="fazer">A fazer</option>
+            <option value="andamento">Em andamento</option>
+            <option value="incompleto">Incompleto</option>
+            <option value="completo">Completo</option>
+          </select>
+        </div>
+      </div>
+      <div class="event-list" id="eventList" aria-live="polite"></div>
+      <div class="legend" aria-label="Legenda de status">
+        <span class="legend-item"><i class="legend-dot" style="background:#23845b"></i>Verde: Completo</span>
+        <span class="legend-item"><i class="legend-dot" style="background:#d59c28"></i>Amarelo: Em andamento</span>
+        <span class="legend-item"><i class="legend-dot" style="background:#c44c4c"></i>Vermelho: Incompleto</span>
+        <span class="legend-item"><i class="legend-dot" style="background:#4278c4"></i>Azul: A fazer</span>
+      </div>
+    </section>
+    <p class="footer-note">Agenda compartilhada da empresa. As alterações são sincronizadas automaticamente.</p>
+    </div>
+  </main>
+
+  <dialog id="eventDialog" aria-labelledby="dialogTitle">
+    <div class="dialog-head">
+      <h2 id="dialogTitle">Novo evento</h2>
+      <button class="close-button" id="closeDialogButton" type="button" aria-label="Fechar">×</button>
+    </div>
+    <form class="event-form" id="eventForm">
+      <input id="eventId" type="hidden">
+      <div class="field">
+        <label for="eventTitle">Nome do evento *</label>
+        <input id="eventTitle" name="title" type="text" maxlength="100" placeholder="Ex.: Casamento da Marina" required>
+      </div>
+      <div class="two-columns">
+        <div class="field">
+          <label for="eventDate">Data do evento *</label>
+          <input id="eventDate" name="date" type="date" required>
+        </div>
+        <div class="field">
+          <label for="eventStatus">Status</label>
+          <select id="eventStatus" name="status">
+            <option value="fazer">🔵 A fazer</option>
+            <option value="andamento">🟡 Em andamento</option>
+            <option value="incompleto">🔴 Incompleto</option>
+            <option value="completo">🟢 Completo</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-label">Funcionários selecionados</span>
+        <div class="check-grid" id="employeeOptions"></div>
+        <div class="add-option">
+          <input id="newEmployeeInput" type="text" maxlength="50" placeholder="Adicionar funcionário">
+          <button class="small-button" id="addEmployeeButton" type="button">Adicionar</button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="field-label">Produtos a utilizar</span>
+        <div class="check-grid" id="productOptions"></div>
+        <div class="add-option">
+          <input id="newProductInput" type="text" maxlength="60" placeholder="Adicionar produto">
+          <button class="small-button" id="addProductButton" type="button">Adicionar</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="eventNotes">Observações</label>
+        <textarea id="eventNotes" name="notes" maxlength="500" placeholder="Detalhes importantes para a equipe..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button class="secondary-button" id="cancelDialogButton" type="button">Cancelar</button>
+        <button class="primary-button" type="submit">Salvar evento</button>
+      </div>
+    </form>
+  </dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-config.js"></script>
+  <script>
+    (function () {
+      "use strict";
+      const DEFAULT_EMPLOYEES = ["Ana", "Bruno", "Camila", "Diego"];
+      const DEFAULT_PRODUCTS = ["Convites", "Topo de bolo", "Lembrancinhas", "Papelaria"];
+      const config = window.AGENDA_SUPABASE_CONFIG || {};
+      const configured = typeof config.url === "string" && /^https:\/\/.+/.test(config.url) &&
+        typeof config.anonKey === "string" && config.anonKey.length > 20 &&
+        !config.url.includes("SEU-PROJETO") && !config.anonKey.includes("SUA-CHAVE");
+      const supabaseClient = configured && window.supabase
+        ? window.supabase.createClient(config.url, config.anonKey)
+        : null;
+      const STATUSES = {
+        completo: { label: "Completo", className: "status-completo" },
+        andamento: { label: "Em andamento", className: "status-andamento" },
+        incompleto: { label: "Incompleto", className: "status-incompleto" },
+        fazer: { label: "A fazer", className: "status-fazer" }
+      };
+      const $ = function (selector) { return document.querySelector(selector); };
+      const eventList = $("#eventList");
+      const dialog = $("#eventDialog");
+      const form = $("#eventForm");
+      let toastTimer;
+      let state = {
+        events: [],
+        employees: DEFAULT_EMPLOYEES.slice(),
+        products: DEFAULT_PRODUCTS.slice()
+      };
+
+      function showError(error, fallback) {
+        console.error(fallback, error);
+        showToast(fallback + (error && error.message ? " " + error.message : ""));
+      }
+
+      async function loadSharedState() {
+        const results = await Promise.all([
+          supabaseClient.from("events").select("id,title,event_date,status,employees,products,notes").order("event_date"),
+          supabaseClient.from("agenda_options").select("kind,name").order("name")
+        ]);
+        if (results[0].error) throw results[0].error;
+        if (results[1].error) throw results[1].error;
+        state.events = results[0].data.map(function (row) {
+          return {
+            id: row.id,
+            title: row.title,
+            date: row.event_date,
+            status: row.status,
+            employees: row.employees || [],
+            products: row.products || [],
+            notes: row.notes || ""
+          };
+        });
+        const employees = results[1].data.filter(function (row) { return row.kind === "employee"; }).map(function (row) { return row.name; });
+        const products = results[1].data.filter(function (row) { return row.kind === "product"; }).map(function (row) { return row.name; });
+        state.employees = employees.length ? employees : DEFAULT_EMPLOYEES.slice();
+        state.products = products.length ? products : DEFAULT_PRODUCTS.slice();
+        render();
+      }
+
+      async function refreshSharedState() {
+        $("#refreshButton").disabled = true;
+        try {
+          await loadSharedState();
+          $("#authError").textContent = "";
+        } catch (error) {
+          showError(error, "Erro ao sincronizar a agenda.");
+        } finally {
+          $("#refreshButton").disabled = false;
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, function (character) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[character];
+        });
+      }
+
+      function formatDate(dateString) {
+        const parts = dateString.split("-").map(Number);
+        const date = new Date(parts[0], parts[1] - 1, parts[2]);
+        return {
+          day: new Intl.DateTimeFormat("pt-BR", { day: "2-digit" }).format(date),
+          month: new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(date).replace(".", ""),
+          full: new Intl.DateTimeFormat("pt-BR", { dateStyle: "long" }).format(date)
+        };
+      }
+
+      function showToast(message) {
+        const toast = $("#toast");
+        toast.textContent = message;
+        toast.hidden = false;
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () { toast.hidden = true; }, 2600);
+      }
+
+      function render() {
+        const query = $("#searchInput").value.trim().toLocaleLowerCase("pt-BR");
+        const filter = $("#statusFilter").value;
+        const sorted = state.events.slice().sort(function (a, b) { return a.date.localeCompare(b.date); });
+        const visible = sorted.filter(function (event) {
+          const matchesStatus = filter === "todos" || event.status === filter;
+          const searchable = [event.title, event.notes, ...(event.employees || []), ...(event.products || [])].join(" ").toLocaleLowerCase("pt-BR");
+          return matchesStatus && searchable.includes(query);
+        });
+
+        $("#totalCount").textContent = state.events.length;
+        $("#todoCount").textContent = state.events.filter(function (event) { return event.status === "fazer"; }).length;
+        $("#progressCount").textContent = state.events.filter(function (event) { return event.status === "andamento"; }).length;
+        $("#completeCount").textContent = state.events.filter(function (event) { return event.status === "completo"; }).length;
+
+        if (!visible.length) {
+          const filtered = query || filter !== "todos";
+          eventList.innerHTML = '<div class="empty"><div class="empty-icon" aria-hidden="true">✦</div><h3>' +
+            (filtered ? "Nenhum evento encontrado" : "Sua agenda está livre") + '</h3><p>' +
+            (filtered ? "Tente mudar a busca ou o filtro." : "Adicione o primeiro evento para começar seu planejamento.") + "</p></div>";
+          return;
+        }
+
+        eventList.innerHTML = visible.map(function (event) {
+          const date = formatDate(event.date);
+          const status = STATUSES[event.status] || STATUSES.fazer;
+          const employeeText = (event.employees || []).length ? event.employees.join(", ") : "Equipe não definida";
+          const productText = (event.products || []).length ? event.products.join(", ") : "Produtos não definidos";
+          return '<article class="event" data-id="' + escapeHtml(event.id) + '">' +
+            '<div class="date-tile" aria-label="' + escapeHtml(date.full) + '"><span class="date-day">' + escapeHtml(date.day) + '</span><span class="date-month">' + escapeHtml(date.month) + '</span></div>' +
+            '<div class="event-main"><div class="event-title-row"><h3 class="event-title">' + escapeHtml(event.title) + '</h3><span class="status ' + status.className + '">' + status.label + '</span></div>' +
+            '<div class="event-meta"><span>♙ ' + escapeHtml(employeeText) + '</span><span>▧ ' + escapeHtml(productText) + '</span>' +
+            (event.notes ? '<span>✎ ' + escapeHtml(event.notes) + '</span>' : "") + '</div></div>' +
+            '<div class="event-actions"><select class="control status-select" data-action="status" aria-label="Status de ' + escapeHtml(event.title) + '">' +
+            Object.keys(STATUSES).map(function (key) { return '<option value="' + key + '"' + (event.status === key ? " selected" : "") + '>' + STATUSES[key].label + "</option>"; }).join("") +
+            '</select><button class="icon-button" data-action="edit" type="button" aria-label="Editar ' + escapeHtml(event.title) + '" title="Editar">✎</button>' +
+            '<button class="icon-button" data-action="delete" type="button" aria-label="Excluir ' + escapeHtml(event.title) + '" title="Excluir">⌫</button></div></article>';
+        }).join("");
+      }
+
+      function renderOptions(containerSelector, values, selected) {
+        $(containerSelector).innerHTML = values.map(function (value) {
+          const checked = selected.includes(value) ? " checked" : "";
+          return '<label class="check-item"><input type="checkbox" value="' + escapeHtml(value) + '"' + checked + '><span>' + escapeHtml(value) + "</span></label>";
+        }).join("");
+      }
+
+      function openDialog(event) {
+        form.reset();
+        $("#eventId").value = event ? event.id : "";
+        $("#dialogTitle").textContent = event ? "Editar evento" : "Novo evento";
+        $("#eventTitle").value = event ? event.title : "";
+        $("#eventDate").value = event ? event.date : "";
+        $("#eventStatus").value = event ? event.status : "fazer";
+        $("#eventNotes").value = event ? event.notes || "" : "";
+        renderOptions("#employeeOptions", state.employees, event ? event.employees || [] : []);
+        renderOptions("#productOptions", state.products, event ? event.products || [] : []);
+        dialog.showModal();
+        $("#eventTitle").focus();
+      }
+
+      function addOption(type) {
+        const isEmployee = type === "employees";
+        const input = $(isEmployee ? "#newEmployeeInput" : "#newProductInput");
+        const collection = isEmployee ? state.employees : state.products;
+        const value = input.value.trim();
+        if (!value) {
+          input.focus();
+          return;
+        }
+        if (collection.some(function (item) { return item.toLocaleLowerCase("pt-BR") === value.toLocaleLowerCase("pt-BR"); })) {
+          showToast("Esse item já está na lista.");
+          input.focus();
+          return;
+        }
+        void saveOption(type, value, input);
+      }
+
+      async function saveOption(type, value, input) {
+        const kind = type === "employees" ? "employee" : "product";
+        const result = await supabaseClient.from("agenda_options").insert({ kind: kind, name: value });
+        if (result.error) {
+          showError(result.error, "Não foi possível adicionar o item.");
+          return;
+        }
+        input.value = "";
+        await refreshSharedState();
+        const selector = kind === "employee" ? "#employeeOptions" : "#productOptions";
+        const checkbox = Array.from($(selector).querySelectorAll("input")).find(function (item) { return item.value === value; });
+        if (checkbox) checkbox.checked = true;
+      }
+
+      $("#todayLabel").textContent = new Intl.DateTimeFormat("pt-BR", { dateStyle: "full" }).format(new Date());
+      $("#newEventButton").addEventListener("click", function () { openDialog(null); });
+      $("#closeDialogButton").addEventListener("click", function () { dialog.close(); });
+      $("#cancelDialogButton").addEventListener("click", function () { dialog.close(); });
+      $("#searchInput").addEventListener("input", render);
+      $("#statusFilter").addEventListener("change", render);
+      $("#addEmployeeButton").addEventListener("click", function () { addOption("employees"); });
+      $("#addProductButton").addEventListener("click", function () { addOption("products"); });
+      $("#refreshButton").addEventListener("click", refreshSharedState);
+      $("#signOutButton").addEventListener("click", async function () {
+        const result = await supabaseClient.auth.signOut();
+        if (result.error) showError(result.error, "Não foi possível sair da conta.");
+      });
+
+      $("#loginForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        $("#authError").textContent = "";
+        $("#loginForm button[type=submit]").disabled = true;
+        try {
+          const result = await supabaseClient.auth.signInWithPassword({
+            email: $("#loginEmail").value.trim(),
+            password: $("#loginPassword").value
+          });
+          if (result.error) throw result.error;
+        } catch (error) {
+          $("#authError").textContent = "Não foi possível entrar. Confira o e-mail e a senha da conta autorizada.";
+          console.error("Falha no login Supabase.", error);
+          $("#loginForm button[type=submit]").disabled = false;
+        }
+      });
+
+      $("#newEmployeeInput").addEventListener("keydown", function (event) {
+        if (event.key === "Enter") { event.preventDefault(); addOption("employees"); }
+      });
+      $("#newProductInput").addEventListener("keydown", function (event) {
+        if (event.key === "Enter") { event.preventDefault(); addOption("products"); }
+      });
+
+      form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const id = $("#eventId").value;
+        const item = {
+          title: $("#eventTitle").value.trim(),
+          date: $("#eventDate").value,
+          status: $("#eventStatus").value,
+          employees: Array.from($("#employeeOptions").querySelectorAll("input:checked")).map(function (input) { return input.value; }),
+          products: Array.from($("#productOptions").querySelectorAll("input:checked")).map(function (input) { return input.value; }),
+          notes: $("#eventNotes").value.trim()
+        };
+        if (!item.title || !item.date) return;
+        const index = state.events.findIndex(function (savedEvent) { return savedEvent.id === id; });
+        const row = {
+          title: item.title,
+          event_date: item.date,
+          status: item.status,
+          employees: item.employees,
+          products: item.products,
+          notes: item.notes
+        };
+        if (id) row.id = id;
+        const result = await supabaseClient.from("events").upsert(row).select("id").single();
+        if (result.error) {
+          showError(result.error, "Não foi possível salvar o evento.");
+          return;
+        }
+        dialog.close();
+        await refreshSharedState();
+        showToast(index >= 0 ? "Evento atualizado." : "Evento adicionado à agenda.");
+      });
+
+      eventList.addEventListener("change", async function (event) {
+        if (!event.target.matches('[data-action="status"]')) return;
+        const card = event.target.closest("[data-id]");
+        const result = await supabaseClient.from("events").update({ status: event.target.value }).eq("id", card.dataset.id);
+        if (result.error) {
+          showError(result.error, "Não foi possível atualizar o status.");
+          await refreshSharedState();
+          return;
+        }
+        await refreshSharedState();
+        showToast("Status atualizado.");
+      });
+
+      eventList.addEventListener("click", async function (event) {
+        const button = event.target.closest("button[data-action]");
+        if (!button) return;
+        const card = button.closest("[data-id]");
+        const item = state.events.find(function (savedEvent) { return savedEvent.id === card.dataset.id; });
+        if (!item) return;
+        if (button.dataset.action === "edit") openDialog(item);
+        if (button.dataset.action === "delete" && window.confirm('Excluir o evento "' + item.title + '"?')) {
+          const result = await supabaseClient.from("events").delete().eq("id", item.id);
+          if (result.error) {
+            showError(result.error, "Não foi possível excluir o evento.");
+            return;
+          }
+          await refreshSharedState();
+          showToast("Evento excluído.");
+        }
+      });
+
+      async function initialize() {
+        $("#connectionPanel").hidden = false;
+        if (!configured || !supabaseClient) {
+          $("#setupMessage").hidden = false;
+          $("#loginForm").hidden = true;
+          $("#agendaContent").hidden = true;
+          return;
+        }
+        $("#setupMessage").hidden = true;
+        $("#loginForm").hidden = false;
+        supabaseClient.auth.onAuthStateChange(function (_event, session) {
+          window.setTimeout(function () { void applySession(session); }, 0);
+        });
+        const result = await supabaseClient.auth.getSession();
+        if (result.error) {
+          showError(result.error, "Não foi possível verificar a sessão.");
+          return;
+        }
+        await applySession(result.data.session);
+        window.setInterval(function () {
+          if (document.visibilityState === "visible" && !$("#agendaContent").hidden) void refreshSharedState();
+        }, 30000);
+        document.addEventListener("visibilitychange", function () {
+          if (document.visibilityState === "visible" && !$("#agendaContent").hidden) void refreshSharedState();
+        });
+      }
+
+      async function applySession(session) {
+        const signedIn = Boolean(session);
+        $("#connectionPanel").hidden = signedIn;
+        $("#agendaContent").hidden = !signedIn;
+        $("#accountTools").hidden = !signedIn;
+        $("#loginForm button[type=submit]").disabled = false;
+        if (!signedIn) {
+          state.events = [];
+          render();
+          return;
+        }
+        $("#accountEmail").textContent = session.user.email || "";
+        await refreshSharedState();
+      }
+
+      void initialize();
+    }());
+  </script>
+</body>
+</html>
